@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Card from "../../componentes/card/card";
 
 export default function Home() {
   return (
@@ -7,10 +7,16 @@ export default function Home() {
           Seja bem vindo ao sistema de controle e relatórios de mídias digitais da UCA
       </h1>
 
-      <div className="bg-white flex justify-center rounded-xl shadow-lg w-[85%] min-h-[50vh]">
+      <div className="bg-white flex flex-col justify-start rounded-xl shadow-lg w-[85%] min-h-[50vh]">
         <h2 className="w-[100%] text-center text-2xl mb-5 p-4">
           Ultimas adições
         </h2>
+      <div className="flex flex-row flex-wrap justify-center">
+        <Card />
+        <Card />
+        <Card />
+      </div>
+
       </div>
 
     </div>
