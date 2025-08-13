@@ -6,8 +6,8 @@ export default function sidebar() {
 
     const botoesHeader = [
         {
-            desc: "Dashboard",
-            href: "/dashboard",
+            desc: "Registros",
+            href: "/registros",
             src: "https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/chart-bar.svg"
         },
         {
@@ -26,21 +26,21 @@ export default function sidebar() {
     return (
     <>
         
-    <div className="bg-white flex flex-row justify-between items-center w-full h-15 shadow-md px-4">
-        <div className="flex flex-row">
-            <div className="flex items-center mr-8">
+    <div className="bg-white flex flex-col lg:flex-row justify-between items-center w-full shadow-md px-4 py-2 lg:py-0 lg:h-15">
+        <div className="flex flex-row items-center w-full lg:w-auto justify-between lg:justify-start">
+            <div className="flex items-center mr-4 lg:mr-8">
                 <Link href="/">
                     <Image
                         src="/logo-uca.png" 
                         alt="logoUca" 
-                        width={150} 
-                        height={50}
-                        className="" 
+                        width={120} 
+                        height={40}
+                        className="lg:w-[150px] lg:h-[45px]" 
                     />
                 </Link>
             </div> 
 
-            <div className="flex flex-row space-x-1">
+            <div className="hidden md:flex flex-row space-x-1">
                 {botoesHeader.map((botao, i) => (
                     <BotaoHeader 
                         key={i}
@@ -53,15 +53,6 @@ export default function sidebar() {
             </div>
         </div>
 
-        <div className="flex mr-5 rounded-4xl overflow-hidden hover:bg-purple-400 h-8 w-8 justify-center items-center group">
-            <Image 
-                src="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/solid/magnifying-glass.svg" 
-                alt="Buscar"
-                width={24}
-                height={24}
-                className="cursor-pointer group-hover:brightness-0 group-hover:invert"
-            />
-        </div>    
 
     </div>
     
