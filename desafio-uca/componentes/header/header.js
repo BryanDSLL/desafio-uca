@@ -36,6 +36,10 @@ export default function sidebar() {
                         width={120} 
                         height={40}
                         className="lg:w-[150px] lg:h-[45px]" 
+                        style={{
+                            width: 'auto',
+                            height: 'auto'
+                        }}
                     />
                 </Link>
             </div> 

@@ -59,7 +59,7 @@ export default function BotaoHeader(props) {
                 )}
             </div>
             
-            {/* Menu Dropdown */}
+            {/* Dropdown cadasrto */}
             {props?.temSeta && dropdownAberto && (
                 <div className="absolute top-full left-0 bg-white shadow-lg rounded-md border border-gray-200 min-w-48 z-50">
                     <Link href="/cadastros/pessoa" className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-purple-500 transition-colors duration-200">

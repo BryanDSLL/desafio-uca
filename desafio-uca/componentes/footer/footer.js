@@ -15,6 +15,10 @@ export default function Footer() {
                             width={200} 
                             height={60}
                             className="mb-1 brightness-0 invert" 
+                            style={{
+                                width: 'auto',
+                                height: 'auto'
+                            }}
                         />
                         <div className="text-xs space-y-0.5">
                             <p>Contato</p>

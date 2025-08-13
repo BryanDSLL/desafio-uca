@@ -32,7 +32,7 @@ export default function Card (props) {
     };
 
     return (
-        <div className="h-80 w-full max-w-xs shadow-lg rounded-xl hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer bg-white border border-gray-100 overflow-hidden">
+        <div className="h-80 w-full max-w-sm shadow-lg rounded-xl hover:shadow-xl hover:scale-[1.04] transition-all duration-300 cursor-pointer bg-white border border-gray-100 overflow-hidden">
             {/* Imagem com overlay de status */}
             <div className="relative bg-gradient-to-br from-purple-50 to-gray-50 rounded-t-xl h-[55%] w-full overflow-hidden">
                 <Image  
@@ -40,6 +40,7 @@ export default function Card (props) {
                     alt={props?.titulo || "Treinamento"}
                     width={300}
                     height={200}
+                    priority={true}
                     className="object-cover w-full h-full hover:scale-110 transition-transform duration-500" 
                 />
                 
