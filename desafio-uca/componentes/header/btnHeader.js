@@ -28,7 +28,7 @@ export default function BotaoHeader(props) {
     return(
         <div className="relative" ref={dropdownRef}>
             <div 
-                className="flex flex-row items-center h-14 px-3 text-black hover:text-white hover:bg-purple-500 hover:cursor-pointer group transition-all duration-200"
+                className="flex flex-row items-center h-14 px-3 text-black hover:text-white hover:bg-purple-600 hover:cursor-pointer group transition-all duration-200"
                 onClick={alternarDropdown}
             >
                 <Image 
@@ -62,10 +62,10 @@ export default function BotaoHeader(props) {
             {/* Dropdown cadasrto */}
             {props?.temSeta && dropdownAberto && (
                 <div className="absolute top-full left-0 bg-white shadow-lg rounded-md border border-gray-200 min-w-48 z-50">
-                    <Link href="/cadastros/pessoa" className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-purple-500 transition-colors duration-200">
+                    <Link href="/cadastros/pessoa" className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-purple-600 transition-colors duration-200">
                         Pessoa
                     </Link>
-                    <Link href="/cadastros/material" className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-purple-500 transition-colors duration-200">
+                    <Link href="/cadastros/material" className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-purple-600 transition-colors duration-200">
                         Material
                     </Link>
                 </div>

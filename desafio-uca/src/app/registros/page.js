@@ -3,46 +3,53 @@
 import { useState, useEffect } from 'react'
 import SearchInput from "../../../componentes/pesquisa/campoPesquisa"
 import ListaRegistros from "../../../componentes/lista/listaRegistros"
+import ModalNovoMaterial from "../../../componentes/modal/modalNovoMaterial"
 
 export default function Registros() {
     const [registros, setRegistros] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [registrosPorPagina] = useState(8)
+    const [modalAberto, setModalAberto] = useState(false)
+    const [successMessage, setSuccessMessage] = useState('')
+
+    // Mover esta função para fora do useEffect
+    const fetchRegistros = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch('/api/materiais/todos')
+            const data = await response.json()
+            
+            if (data.success) {
+       
+                const registrosMapeados = data.materiais.map(material => ({
+                    id: material.id,
+                    titulo: material.titulo,
+                    responsavel: material.responsavel,
+                    linhaSistema: "Sistema Educacional", 
+                    sistema: "Portal UCA", 
+                    link: `https://portal.uca.com/material/${material.id}`, 
+                    plataforma: material.plataforma,
+                    duracao: material.duracao,
+                    data: new Date(material.data).toLocaleDateString('pt-BR'),
+                    status: material.status,
+                    descricao: material.desc
+                }))
+                setRegistros(registrosMapeados)
+            } else {
+                setError('Erro ao carregar registros')
+            }
+        } catch (err) {
+            console.error('Erro ao buscar registros:', err)
+            setError('Erro ao conectar com o servidor')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     useEffect(() => {
-        const fetchRegistros = async () => {
-            try {
-                setLoading(true)
-                const response = await fetch('/api/materiais/todos')
-                const data = await response.json()
-                
-                if (data.success) {
-           
-                    const registrosMapeados = data.materiais.map(material => ({
-                        id: material.id,
-                        titulo: material.titulo,
-                        responsavel: material.responsavel,
-                        linhaSistema: "Sistema Educacional", 
-                        sistema: "Portal UCA", 
-                        link: `https://portal.uca.com/material/${material.id}`, 
-                        plataforma: material.plataforma,
-                        duracao: material.duracao,
-                        data: new Date(material.data).toLocaleDateString('pt-BR'),
-                        status: material.status,
-                        descricao: material.desc
-                    }))
-                    setRegistros(registrosMapeados)
-                } else {
-                    setError('Erro ao carregar registros')
-                }
-            } catch (err) {
-                console.error('Erro ao buscar registros:', err)
-                setError('Erro ao conectar com o servidor')
-            } finally {
-                setLoading(false)
-            }
-        }
-
+        // Apenas chamar a função aqui
         fetchRegistros()
     }, [])
 
@@ -68,7 +75,7 @@ export default function Registros() {
         </div>
     )
 
-    // Estados de loading e erro
+
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -87,23 +94,57 @@ export default function Registros() {
         )
     }
 
+
+    const indexOfLastRegistro = currentPage * registrosPorPagina
+    const indexOfFirstRegistro = indexOfLastRegistro - registrosPorPagina
+    const registrosAtuais = registros.slice(indexOfFirstRegistro, indexOfLastRegistro)
+    const totalPaginas = Math.ceil(registros.length / registrosPorPagina)
+
+    const paginate = (pageNumber) => {
+        setCurrentPage(pageNumber)
+        window.scrollTo(0, 0)
+    }
+    const nextPage = () => {
+        if (currentPage < totalPaginas) {
+            setCurrentPage(currentPage + 1)
+            window.scrollTo(0, 0)
+        }
+    }
+    const prevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1)
+            window.scrollTo(0, 0)
+        }
+    }
+
+    const handleNovoMaterial = () => { setModalAberto(true)}
+    const handleModalClose = () => {setModalAberto(false)}
+
+    const handleMaterialCriado = async (message) => {
+        setSuccessMessage(message)
+        await fetchRegistros() // Agora pode chamar a função
+        setTimeout(() => setSuccessMessage(''), 3000)
+    }
+
     return (
         <>
-            {/* Mostrar aviso em dispositivos móveis */}
             <div className="block lg:hidden">
                 <AvisoMobile />
             </div>
             
-            {/* Mostrar conteúdo normal em desktop */}
             <div className="hidden lg:block">
                 <div className="flex flex-col items-center px-4">
                     <h1 className="w-full text-center text-2xl md:text-3xl mb-5 px-2">
                         Registros
                     </h1>
 
-                    <div className="bg-white rounded-xl shadow-lg w-full max-w-7xl p-6">
+                    {successMessage && (
+                        <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded w-full max-w-7xl">
+                            {successMessage}
+                        </div>
+                    )}
 
-                        {/* Cabeçalho com informações */}
+                    <div className="bg-white rounded-xl shadow-lg w-full max-w-7xl p-6">
                         <div className="mb-6">
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                                 <div>
@@ -111,13 +152,18 @@ export default function Registros() {
                                         Total de Registros: {registros.length}
                                     </h2>
                                     <p className="text-gray-600">Gerencie todos os seus treinamentos e eventos</p>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Mostrando {indexOfFirstRegistro + 1} a {Math.min(indexOfLastRegistro, registros.length)} de {registros.length} registros
+                                    </p>
                                 </div>
-                                <button className="mt-4 sm:mt-0 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                                <button 
+                                    onClick={handleNovoMaterial}
+                                    className="mt-4 sm:mt-0 bg-purple-600 hover:bg-purple-700 hover:cursor-pointer text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                >
                                     Novo Registro
                                 </button>
                             </div>
                             
-                            {/* Barra de pesquisa */}
                             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                                 <SearchInput 
                                     placeholder="Pesquisar registros..."
@@ -126,29 +172,78 @@ export default function Registros() {
                             </div>
                         </div>
 
-                        {/* Lista de registros */}
-                        <ListaRegistros registros={registros} />
+                        <ListaRegistros registros={registrosAtuais} />
 
-                        {/* Paginação simples (opcional) */}
-                        <div className="mt-8 flex justify-center">
-                            <div className="flex space-x-2">
-                                <button className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                                    Anterior
-                                </button>
-                                <button className="px-3 py-2 text-sm bg-purple-600 text-white rounded">
-                                    1
-                                </button>
-                                <button className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                                    2
-                                </button>
-                                <button className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                                    Próximo
-                                </button>
+                        {totalPaginas > 1 && (
+                            <div className="mt-8 flex flex-col items-center">
+                                <div className="text-sm text-gray-700 mb-4">
+                                    Página {currentPage} de {totalPaginas}
+                                </div>
+                                <div className="flex space-x-2">
+                                    <button 
+                                        onClick={prevPage}
+                                        disabled={currentPage === 1}
+                                        className={`px-3 py-2 text-sm rounded transition-colors duration-200 ${
+                                            currentPage === 1 
+                                                ? 'text-gray-400 cursor-not-allowed' 
+                                                : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        Anterior
+                                    </button>
+                                    
+                                    {[...Array(totalPaginas)].map((_, index) => {
+                                        const pageNumber = index + 1
+                                        if (
+                                            pageNumber === 1 ||
+                                            pageNumber === totalPaginas ||
+                                            (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                        ) {
+                                            return (
+                                                <button
+                                                    key={pageNumber}
+                                                    onClick={() => paginate(pageNumber)}
+                                                    className={`px-3 py-2 text-sm rounded transition-colors duration-200 ${
+                                                        currentPage === pageNumber
+                                                            ? 'bg-purple-600 text-white'
+                                                            : 'text-gray-700 hover:bg-gray-100'
+                                                    }`}
+                                                >
+                                                    {pageNumber}
+                                                </button>
+                                            )
+                                        } else if (
+                                            pageNumber === currentPage - 2 ||
+                                            pageNumber === currentPage + 2
+                                        ) {
+                                            return <span key={pageNumber} className="px-2 text-gray-400">...</span>
+                                        }
+                                        return null
+                                    })}
+                                    
+                                    <button 
+                                        onClick={nextPage}
+                                        disabled={currentPage === totalPaginas}
+                                        className={`px-3 py-2 text-sm rounded transition-colors duration-200 ${
+                                            currentPage === totalPaginas 
+                                                ? 'text-gray-400 cursor-not-allowed' 
+                                                : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        Próximo
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            <ModalNovoMaterial 
+                isOpen={modalAberto}
+                onClose={handleModalClose}
+                onSuccess={handleMaterialCriado}
+            />
         </>
     );
 }

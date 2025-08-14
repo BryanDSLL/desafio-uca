@@ -6,7 +6,7 @@ export const metadata = {
   title: "Controle UCA",
   description: "Portal de gerenciamento da UCA",
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icone-uca.ico',
   },
 };
 
