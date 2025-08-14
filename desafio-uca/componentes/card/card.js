@@ -1,20 +1,16 @@
 import Image from "next/image"
-import Imgteste from "../../public/uca-teste.webp"
+import Imgteste from "../../public/uca-card.webp"
 
 export default function Card (props) {
     
     const getPlatformIcon = (plataforma) => {
         switch (plataforma) {
             case 'YouTube':
-                return '🎥';
+                return <Image src="/icons/youtube-color-icon.svg" alt="YouTube" width={16} height={16} />;
             case 'Vimeo':
-                return '📹';
-            case 'Teams':
-                return '💼';
-            case 'Zoom':
-                return '📞';
+                return <Image src="/icons/vimeo-color-icon.svg" alt="Vimeo" width={16} height={16} />;
             default:
-                return '🌐';
+                return <Image src="/icons/outros-icon.svg" alt="Outros" width={16} height={16} />;
         }
     };
 
@@ -81,13 +77,13 @@ export default function Card (props) {
                     <div className="flex justify-between items-end text-xs">
                         {props?.responsavel && (
                             <div className="flex items-center gap-1">
-                                <span className="text-gray-500">👤</span>
+                                <Image src="/icons/user-icon.svg" alt="Responsável" width={12} height={12} className="text-gray-500" />
                                 <span className="text-gray-700 font-medium truncate">{props.responsavel}</span>
                             </div>
                         )}
                         {props?.duracao && (
                             <div className="flex items-center gap-1">
-                                <span className="text-gray-500 text-sm">⏱️</span>
+                                <Image src="/icons/clock-icon.svg" alt="Duração" width={12} height={12} className="text-purple-600" />
                                 <span className="text-purple-600 font-bold text-sm">{props.duracao}</span>
                             </div>
                         )}
@@ -96,7 +92,7 @@ export default function Card (props) {
                     {/* Data */}
                     {props?.data && (
                         <div className="flex items-center gap-1 text-xs">
-                            <span className="text-gray-500">📅</span>
+                            <Image src="/icons/calendar-icon.svg" alt="Data" width={12} height={12} className="text-gray-500" />
                             <span className="text-gray-600">
                                 {new Date(props.data).toLocaleDateString('pt-BR')}
                             </span>

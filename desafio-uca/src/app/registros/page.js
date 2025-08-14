@@ -14,8 +14,8 @@ export default function Registros() {
     const [modalAberto, setModalAberto] = useState(false)
     const [successMessage, setSuccessMessage] = useState('')
     const [materialParaEditar, setMaterialParaEditar] = useState(null)
+    const [termoPesquisa, setTermoPesquisa] = useState('')
 
-    // Mover esta função para fora do useEffect
     const fetchRegistros = async () => {
         try {
             setLoading(true)
@@ -96,10 +96,25 @@ export default function Registros() {
     }
 
 
+    const registrosFiltrados = registros.filter(registro => {
+        const termo = termoPesquisa.toLowerCase()
+        return (
+            registro.titulo.toLowerCase().includes(termo) ||
+            registro.responsavel.toLowerCase().includes(termo) ||
+            registro.plataforma.toLowerCase().includes(termo) ||
+            registro.status.toLowerCase().includes(termo)
+        )
+    })
+
     const indexOfLastRegistro = currentPage * registrosPorPagina
     const indexOfFirstRegistro = indexOfLastRegistro - registrosPorPagina
-    const registrosAtuais = registros.slice(indexOfFirstRegistro, indexOfLastRegistro)
-    const totalPaginas = Math.ceil(registros.length / registrosPorPagina)
+    const registrosAtuais = registrosFiltrados.slice(indexOfFirstRegistro, indexOfLastRegistro)
+    const totalPaginas = Math.ceil(registrosFiltrados.length / registrosPorPagina)
+
+    const handlePesquisa = (valor) => {
+        setTermoPesquisa(valor)
+        setCurrentPage(1)
+    }
 
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber)
@@ -186,11 +201,11 @@ export default function Registros() {
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                                 <div>
                                     <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                                        Total de Registros: {registros.length}
+                                        Total de Registros: {registrosFiltrados.length}
                                     </h2>
                                     <p className="text-gray-600">Gerencie todos os seus treinamentos e eventos</p>
                                     <p className="text-sm text-gray-500 mt-1">
-                                        Mostrando {indexOfFirstRegistro + 1} a {Math.min(indexOfLastRegistro, registros.length)} de {registros.length} registros
+                                        Mostrando {indexOfFirstRegistro + 1} a {Math.min(indexOfLastRegistro, registrosFiltrados.length)} de {registrosFiltrados.length} registros
                                     </p>
                                 </div>
                                 <button 
@@ -201,10 +216,11 @@ export default function Registros() {
                                 </button>
                             </div>
                             
-                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-end mr-5">
                                 <SearchInput 
                                     placeholder="Pesquisar registros..."
                                     className="w-full sm:w-80"
+                                    onSearch={handlePesquisa}
                                 />
                             </div>
                         </div>

@@ -1,4 +1,5 @@
 "use client"
+import Image from "next/image"
 
 export default function ListaRegistros({ registros, onEditar }) {
   const getStatusColor = (status) => {
@@ -12,13 +13,14 @@ export default function ListaRegistros({ registros, onEditar }) {
   }
 
   const getPlatformIcon = (platform) => {
-    const icons = {
-      'Web': '🌐',
-      'Mobile': '📱',
-      'Desktop': '💻',
-      'API': '🔗'
+    switch (platform) {
+      case 'YouTube':
+        return <Image src="/icons/youtube-color-icon.svg" alt="YouTube" width={16} height={16} />;
+      case 'Vimeo':
+        return <Image src="/icons/vimeo-color-icon.svg" alt="Vimeo" width={16} height={16} />;
+      default:
+        return <Image src="/icons/outros-icon.svg" alt="Outros" width={16} height={16} />;
     }
-    return icons[platform] || '📄'
   }
 
   return (
@@ -50,7 +52,7 @@ export default function ListaRegistros({ registros, onEditar }) {
               {/* Plataforma */}
               <div className="col-span-2">
                 <div className="flex items-center space-x-2">
-                  <span className="text-lg">{getPlatformIcon(registro.plataforma)}</span>
+                  {getPlatformIcon(registro.plataforma)}
                   <span className="text-sm text-gray-700">{registro.plataforma}</span>
                 </div>
               </div>
