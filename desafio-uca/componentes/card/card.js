@@ -32,9 +32,9 @@ export default function Card (props) {
     };
 
     return (
-        <div className="h-80 w-full max-w-sm shadow-lg rounded-xl hover:shadow-xl hover:scale-[1.04] transition-all duration-300 cursor-pointer bg-white border border-gray-100 overflow-hidden">
+        <div className="w-full max-w-sm shadow-lg rounded-xl hover:shadow-xl hover:scale-[1.04] transition-all duration-300 cursor-pointer bg-white border border-gray-100 overflow-hidden flex flex-col">
             {/* Imagem com overlay de status */}
-            <div className="relative bg-gradient-to-br from-purple-50 to-gray-50 rounded-t-xl h-[55%] w-full overflow-hidden">
+            <div className="relative bg-gradient-to-br from-purple-50 to-gray-50 rounded-t-xl h-48 w-full overflow-hidden flex-shrink-0">
                 <Image  
                     src={props?.src || Imgteste}
                     alt={props?.titulo || "Treinamento"}
@@ -65,20 +65,20 @@ export default function Card (props) {
             </div>
 
             {/* Conteúdo do card */}
-            <div className="bg-white rounded-b-xl p-4 h-[45%] flex flex-col justify-between">
-                <div>
-                    <h3 className="font-semibold text-gray-800 mb-2 text-base leading-tight line-clamp-2">
+            <div className="bg-white rounded-b-xl p-4 flex flex-col flex-grow">
+                <div className="flex-grow">
+                    <h3 className="font-semibold text-gray-800 mb-2 text-base leading-tight">
                         {props?.titulo || "Treinamento teste"}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    <p className="text-sm text-gray-600 mb-3 leading-relaxed">
                         {props?.desc || "Treinamento realizado para teste"}
                     </p>
                 </div>
                 
                 {/* Informações adicionais */}
-                <div className="space-y-2">
+                <div className="space-y-2 mt-auto">
                     {/* Responsável e Duração */}
-                    <div className="flex justify-between items-center text-xs">
+                    <div className="flex justify-between items-end text-xs">
                         {props?.responsavel && (
                             <div className="flex items-center gap-1">
                                 <span className="text-gray-500">👤</span>
@@ -87,8 +87,8 @@ export default function Card (props) {
                         )}
                         {props?.duracao && (
                             <div className="flex items-center gap-1">
-                                <span className="text-gray-500">⏱️</span>
-                                <span className="text-purple-600 font-medium">{props.duracao}</span>
+                                <span className="text-gray-500 text-sm">⏱️</span>
+                                <span className="text-purple-600 font-bold text-sm">{props.duracao}</span>
                             </div>
                         )}
                     </div>

@@ -1,6 +1,6 @@
 "use client"
 
-export default function ListaRegistros({ registros }) {
+export default function ListaRegistros({ registros, onEditar }) {
   const getStatusColor = (status) => {
     const colors = {
         'Ativo': 'bg-green-100 text-green-800',
@@ -76,7 +76,7 @@ export default function ListaRegistros({ registros }) {
               <div className="col-span-1">
                 <button 
                   className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-100 hover:cursor-pointer rounded-lg transition-colors duration-200"
-                  onClick={() => console.log('Editar registro:', registro.titulo)}
+                  onClick={() => onEditar(registro)}
                   title="Editar registro"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

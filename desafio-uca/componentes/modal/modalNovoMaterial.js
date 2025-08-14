@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 
-export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
+export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, materialParaEditar = null }) {
     const [formData, setFormData] = useState({
         titulo: '',
         descricao: '',
@@ -19,14 +19,44 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
     const [loading, setLoading] = useState(false)
     const [loadingPessoas, setLoadingPessoas] = useState(true)
     const [error, setError] = useState('')
+    const [isEditing, setIsEditing] = useState(false)
 
     // Buscar pessoas quando o modal abrir
     useEffect(() => {
         if (isOpen) {
             fetchPessoas()
-            setError('') // Adicionar esta linha
+            setError('')
+            
+            // Se há material para editar, preencher os campos
+            if (materialParaEditar) {
+                setIsEditing(true)
+                setFormData({
+                    titulo: materialParaEditar.titulo || '',
+                    descricao: materialParaEditar.descricao || '',
+                    responsavel_id: materialParaEditar.responsavel_id || '',
+                    duracao: materialParaEditar.duracao || '',
+                    data_material: materialParaEditar.data_material || '',
+                    status: materialParaEditar.status || 'Planejado',
+                    plataforma: materialParaEditar.plataforma || 'YouTube',
+                    url_material: materialParaEditar.url_material || '',
+                    imagem_capa: materialParaEditar.imagem_capa || ''
+                })
+            } else {
+                setIsEditing(false)
+                setFormData({
+                    titulo: '',
+                    descricao: '',
+                    responsavel_id: '',
+                    duracao: '',
+                    data_material: '',
+                    status: 'Planejado',
+                    plataforma: 'YouTube',
+                    url_material: '',
+                    imagem_capa: ''
+                })
+            }
         }
-    }, [isOpen])
+    }, [isOpen, materialParaEditar])
 
     const fetchPessoas = async () => {
         try {
@@ -46,13 +76,63 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
         }
     }
 
+    // Função para formatar duração melhorada
+    // Função para formatar duração corrigida
+    const formatDuracao = (value) => {
+        if (!value) return '';
+        
+        // Verifica se está no formato H:MM ou HH:MM
+        const timeFormatMatch = value.match(/^(\d{1,2}):(\d{2})$/);
+        
+        if (timeFormatMatch) {
+            const hours = parseInt(timeFormatMatch[1]);
+            const minutes = parseInt(timeFormatMatch[2]);
+            
+            // Valida se os minutos são válidos (0-59)
+            if (minutes > 59) {
+                return value; // Retorna o valor original se inválido
+            }
+            
+            return `${hours}h ${minutes.toString().padStart(2, '0')}min`;
+        }
+        
+        // Remove tudo que não é número
+        const cleanedValue = value.replace(/[^0-9]/g, '');
+        
+        if (cleanedValue.length === 0) {
+            return '';
+        }
+        
+        const num = parseInt(cleanedValue);
+        
+        if (num === 0) {
+            return '';
+        }
+        
+        // Se for menor que 60, considera como minutos
+        if (num < 60) {
+            return `${num}min`;
+        }
+        
+        // Se for maior ou igual a 60, calcula horas e minutos
+        const hours = Math.floor(num / 60);
+        const minutes = num % 60;
+        
+        // Sempre mostra os minutos, mesmo que seja 00
+        return `${hours}h ${minutes.toString().padStart(2, '0')}min`;
+    };
+
+    // Função para lidar com blur do campo duração
+    const handleDuracaoBlur = (e) => {
+        const formattedValue = formatDuracao(e.target.value);
+        setFormData({ ...formData, duracao: formattedValue });
+    };
+
     const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }))
-    }
+        const { name, value } = e.target;
+        // Para duração, não formata durante a digitação, apenas armazena o valor
+        setFormData({ ...formData, [name]: value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -60,8 +140,14 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
         setError('')
 
         try {
-            const response = await fetch('/api/materiais/criarMaterial', {
-                method: 'POST',
+            const url = isEditing 
+                ? `/api/materiais/editarMaterial/${materialParaEditar.id}`
+                : '/api/materiais/criarMaterial'
+            
+            const method = isEditing ? 'PUT' : 'POST'
+            
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -90,7 +176,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
                 onSuccess(data.message)
                 onClose()
             } else {
-                setError(data.error || 'Erro ao criar material')
+                setError(data.error || `Erro ao ${isEditing ? 'editar' : 'criar'} material`)
             }
         } catch (err) {
             console.error('Erro completo:', err)
@@ -107,7 +193,9 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
             <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Novo Material</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">
+                            {isEditing ? 'Editar Material' : 'Novo Material'}
+                        </h2>
                         <button
                             onClick={() => {
                                 setError('')
@@ -193,8 +281,9 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
                                     name="duracao"
                                     value={formData.duracao}
                                     onChange={handleInputChange}
+                                    onBlur={handleDuracaoBlur}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Ex: 2h 30min"
+                                    placeholder="Ex: 2:00 ou 120 (para 2h 00min)"
                                 />
                             </div>
                             <div>
@@ -289,7 +378,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess }) {
                                 disabled={loading}
                                 className="hover:cursor-pointer px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
                             >
-                                {loading ? 'Salvando...' : 'Salvar Material'}
+                                {loading ? (isEditing ? 'Salvando...' : 'Criando...') : (isEditing ? 'Salvar Alterações' : 'Salvar Material')}
                             </button>
                         </div>
                     </form>

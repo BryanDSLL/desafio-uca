@@ -13,6 +13,7 @@ export default function Registros() {
     const [registrosPorPagina] = useState(8)
     const [modalAberto, setModalAberto] = useState(false)
     const [successMessage, setSuccessMessage] = useState('')
+    const [materialParaEditar, setMaterialParaEditar] = useState(null)
 
     // Mover esta função para fora do useEffect
     const fetchRegistros = async () => {
@@ -117,12 +118,48 @@ export default function Registros() {
         }
     }
 
-    const handleNovoMaterial = () => { setModalAberto(true)}
-    const handleModalClose = () => {setModalAberto(false)}
+    const handleNovoMaterial = () => {
+        setMaterialParaEditar(null)
+        setModalAberto(true)
+    }
+    
+    const handleEditarMaterial = async (registro) => {
+        try {
+            // Buscar dados completos do material
+            const response = await fetch(`/api/materiais/${registro.id}`)
+            const data = await response.json()
+            
+            if (data.success) {
+                setMaterialParaEditar({
+                    id: data.material.id,
+                    titulo: data.material.titulo,
+                    descricao: data.material.desc,
+                    responsavel_id: data.material.responsavel_id,
+                    duracao: data.material.duracao,
+                    data_material: data.material.data_material ? data.material.data_material.split('T')[0] : '',
+                    status: data.material.status,
+                    plataforma: data.material.plataforma,
+                    url_material: data.material.url_material || '',
+                    imagem_capa: data.material.imagem_capa || ''
+                })
+                setModalAberto(true)
+            } else {
+                setError('Erro ao carregar dados do material')
+            }
+        } catch (err) {
+            console.error('Erro ao buscar material:', err)
+            setError('Erro ao conectar com o servidor')
+        }
+    }
+    
+    const handleModalClose = () => {
+        setModalAberto(false)
+        setMaterialParaEditar(null)
+    }
 
     const handleMaterialCriado = async (message) => {
         setSuccessMessage(message)
-        await fetchRegistros() // Agora pode chamar a função
+        await fetchRegistros()
         setTimeout(() => setSuccessMessage(''), 3000)
     }
 
@@ -172,7 +209,10 @@ export default function Registros() {
                             </div>
                         </div>
 
-                        <ListaRegistros registros={registrosAtuais} />
+                        <ListaRegistros 
+                            registros={registrosAtuais} 
+                            onEditar={handleEditarMaterial}
+                        />
 
                         {totalPaginas > 1 && (
                             <div className="mt-8 flex flex-col items-center">
@@ -243,6 +283,7 @@ export default function Registros() {
                 isOpen={modalAberto}
                 onClose={handleModalClose}
                 onSuccess={handleMaterialCriado}
+                materialParaEditar={materialParaEditar}
             />
         </>
     );
