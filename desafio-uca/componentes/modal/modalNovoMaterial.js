@@ -272,13 +272,25 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
         }
     }
 
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset'
+        }
+    }, [isOpen])
+
     if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 bg-gray-500/75 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[95vh] overflow-y-auto">
                 <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold text-gray-900">
                             {isEditing ? 'Editar Material' : 'Novo Material'}
                         </h2>
@@ -300,23 +312,48 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Título */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Título *
-                            </label>
-                            <input
-                                type="text"
-                                name="titulo"
-                                value={formData.titulo}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Digite o título do material"
-                            />
+                        {/* Primeira linha: Título e Responsável */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Título *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="titulo"
+                                    value={formData.titulo}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Digite o título do material"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Responsável *
+                                </label>
+                                {loadingPessoas ? (
+                                    <div className="px-3 py-2 text-gray-500">Carregando responsáveis...</div>
+                                ) : (
+                                    <select
+                                        name="responsavel_id"
+                                        value={formData.responsavel_id}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    >
+                                        <option value="">Selecione um responsável</option>
+                                        {pessoas.map(pessoa => (
+                                            <option key={pessoa.id} value={pessoa.id}>
+                                                {pessoa.nome} - {pessoa.cargo} ({pessoa.departamento})
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Descrição */}
+                        {/* Segunda linha: Descrição */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Descrição
@@ -325,39 +362,14 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                 name="descricao"
                                 value={formData.descricao}
                                 onChange={handleInputChange}
-                                rows={3}
+                                rows={2}
                                 className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Descreva o conteúdo do material"
                             />
                         </div>
 
-                        {/* Responsável */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Responsável *
-                            </label>
-                            {loadingPessoas ? (
-                                <div className="px-3 py-2 text-gray-500">Carregando responsáveis...</div>
-                            ) : (
-                                <select
-                                    name="responsavel_id"
-                                    value={formData.responsavel_id}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                >
-                                    <option value="">Selecione um responsável</option>
-                                    {pessoas.map(pessoa => (
-                                        <option key={pessoa.id} value={pessoa.id}>
-                                            {pessoa.nome} - {pessoa.cargo} ({pessoa.departamento})
-                                        </option>
-                                    ))}
-                                </select>
-                            )}
-                        </div>
-
-                        {/* Duração e Data */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Terceira linha: Duração, Data, Status e Plataforma */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Duração
@@ -369,7 +381,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                     onChange={handleInputChange}
                                     onBlur={handleDuracaoBlur}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Ex: 2:00 ou 120 (para 2h 00min)"
+                                    placeholder="Ex: 2:00"
                                 />
                             </div>
                             <div>
@@ -384,9 +396,6 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 />
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Status
@@ -420,6 +429,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                             </div>
                         </div>
 
+                        {/* Quarta linha: URL do Material */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 URL do Material
@@ -434,73 +444,76 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Imagem de Capa
-                            </label>
-                            
-                            {/* Seletor de tipo de imagem */}
-                            <div className="flex space-x-4 mb-3">
-                                <label className="flex items-center">
-                                    <input
-                                        type="radio"
-                                        name="tipo_imagem"
-                                        value="url"
-                                        checked={formData.tipo_imagem === 'url'}
-                                        onChange={handleInputChange}
-                                        className="mr-2"
-                                    />
-                                    <span className="text-sm text-gray-700">URL da Imagem</span>
+                        {/* Quinta linha: Imagem de Capa */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <div className="lg:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Imagem de Capa
                                 </label>
-                                <label className="flex items-center">
-                                    <input
-                                        type="radio"
-                                        name="tipo_imagem"
-                                        value="arquivo"
-                                        checked={formData.tipo_imagem === 'arquivo'}
-                                        onChange={handleInputChange}
-                                        className="mr-2"
-                                    />
-                                    <span className="text-sm text-gray-700">Upload de Arquivo</span>
-                                </label>
-                            </div>
-
-                            {/* Campo URL */}
-                            {formData.tipo_imagem === 'url' && (
-                                <input
-                                    type="url"
-                                    name="imagem_capa"
-                                    value={formData.imagem_capa}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="https://..."
-                                />
-                            )}
-
-                            {/* Campo Upload */}
-                            {formData.tipo_imagem === 'arquivo' && (
-                                <div>
-                                    <input
-                                        type="file"
-                                        accept=".png,.jpg,.jpeg"
-                                        onChange={handleFileChange}
-                                        className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Formatos aceitos: PNG, JPG. Tamanho máximo: 5MB
-                                    </p>
+                                
+                                {/* Seletor de tipo de imagem */}
+                                <div className="flex space-x-4 mb-3">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="tipo_imagem"
+                                            value="url"
+                                            checked={formData.tipo_imagem === 'url'}
+                                            onChange={handleInputChange}
+                                            className="mr-2"
+                                        />
+                                        <span className="text-sm text-gray-700">URL da Imagem</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="tipo_imagem"
+                                            value="arquivo"
+                                            checked={formData.tipo_imagem === 'arquivo'}
+                                            onChange={handleInputChange}
+                                            className="mr-2"
+                                        />
+                                        <span className="text-sm text-gray-700">Upload de Arquivo</span>
+                                    </label>
                                 </div>
-                            )}
+
+                                {/* Campo URL */}
+                                {formData.tipo_imagem === 'url' && (
+                                    <input
+                                        type="url"
+                                        name="imagem_capa"
+                                        value={formData.imagem_capa}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="https://..."
+                                    />
+                                )}
+
+                                {/* Campo Upload */}
+                                {formData.tipo_imagem === 'arquivo' && (
+                                    <div>
+                                        <input
+                                            type="file"
+                                            accept=".png,.jpg,.jpeg"
+                                            onChange={handleFileChange}
+                                            className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Formatos aceitos: PNG, JPG. Tamanho máximo: 5MB
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Preview da imagem */}
                             {previewImagem && (
-                                <div className="mt-3">
+                                <div className="flex flex-col items-center">
                                     <p className="text-sm text-gray-700 mb-2">Preview:</p>
                                     <Image
                                         src={previewImagem}
                                         alt="Preview"
-                                        width={128}
-                                        height={128}
+                                        width={120}
+                                        height={120}
                                         className="object-cover rounded-md border border-gray-300"
                                         priority
                                     />
@@ -508,7 +521,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                             )}
                         </div>
 
-                        <div className="flex justify-end space-x-3 pt-4">
+                        <div className="flex justify-end space-x-3 pt-4 border-t">
                             <button
                                 type="button"
                                 onClick={() => {

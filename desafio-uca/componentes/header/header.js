@@ -6,20 +6,20 @@ export default function sidebar() {
 
     const botoesHeader = [
         {
-            desc: "Registros",
+            desc: "Material",
             href: "/registros",
             src: "https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/chart-bar.svg"
+        },
+        {
+            desc: "Responsável",
+            href: "/cadastros/pessoa",
+            src: "https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/user-plus.svg"
+            // Remover: temSeta: true
         },
         {
             desc: "Relatórios",
             href: "/relatorios",
             src: "https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/document-chart-bar.svg"
-        },
-        {
-            desc: "Cadastros",
-            href: "/cadastros",
-            src: "https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/user-plus.svg",
-            temSeta: true
         }
     ]   
 
