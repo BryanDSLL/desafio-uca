@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, materialParaEditar = null }) {
     const [formData, setFormData] = useState({
@@ -12,7 +13,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
         status: 'Planejado',
         plataforma: 'YouTube',
         url_material: '',
-        imagem_capa: ''
+        imagem_capa: '',
+        tipo_imagem: 'url'
     })
     
     const [pessoas, setPessoas] = useState([])
@@ -20,16 +22,29 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
     const [loadingPessoas, setLoadingPessoas] = useState(true)
     const [error, setError] = useState('')
     const [isEditing, setIsEditing] = useState(false)
+    const [arquivoImagem, setArquivoImagem] = useState(null)
+    const [previewImagem, setPreviewImagem] = useState('')
 
-    // Buscar pessoas quando o modal abrir
     useEffect(() => {
         if (isOpen) {
             fetchPessoas()
             setError('')
             
-            // Se há material para editar, preencher os campos
             if (materialParaEditar) {
                 setIsEditing(true)
+                
+                // Determinar o tipo de imagem baseado na URL
+                let tipoImagem = 'url'
+                let imagemPreview = ''
+                
+                if (materialParaEditar.imagem_capa) {
+                    // Se a imagem começa com /uploads/, é um arquivo carregado
+                    if (materialParaEditar.imagem_capa.startsWith('/uploads/')) {
+                        tipoImagem = 'arquivo'
+                    }
+                    imagemPreview = materialParaEditar.imagem_capa
+                }
+                
                 setFormData({
                     titulo: materialParaEditar.titulo || '',
                     descricao: materialParaEditar.descricao || '',
@@ -39,8 +54,14 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                     status: materialParaEditar.status || 'Planejado',
                     plataforma: materialParaEditar.plataforma || 'YouTube',
                     url_material: materialParaEditar.url_material || '',
-                    imagem_capa: materialParaEditar.imagem_capa || ''
+                    imagem_capa: materialParaEditar.imagem_capa || '',
+                    tipo_imagem: tipoImagem
                 })
+                
+                // Configurar preview da imagem
+                setPreviewImagem(imagemPreview)
+                setArquivoImagem(null)
+                
             } else {
                 setIsEditing(false)
                 setFormData({
@@ -52,7 +73,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                     status: 'Planejado',
                     plataforma: 'YouTube',
                     url_material: '',
-                    imagem_capa: ''
+                    imagem_capa: '',
+                    tipo_imagem: 'url'
                 })
             }
         }
@@ -76,27 +98,22 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
         }
     }
 
-    // Função para formatar duração melhorada
-    // Função para formatar duração corrigida
     const formatDuracao = (value) => {
         if (!value) return '';
         
-        // Verifica se está no formato H:MM ou HH:MM
         const timeFormatMatch = value.match(/^(\d{1,2}):(\d{2})$/);
         
         if (timeFormatMatch) {
             const hours = parseInt(timeFormatMatch[1]);
             const minutes = parseInt(timeFormatMatch[2]);
             
-            // Valida se os minutos são válidos (0-59)
             if (minutes > 59) {
-                return value; // Retorna o valor original se inválido
+                return value; 
             }
-            
+
             return `${hours}h ${minutes.toString().padStart(2, '0')}min`;
         }
         
-        // Remove tudo que não é número
         const cleanedValue = value.replace(/[^0-9]/g, '');
         
         if (cleanedValue.length === 0) {
@@ -109,30 +126,87 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
             return '';
         }
         
-        // Se for menor que 60, considera como minutos
         if (num < 60) {
             return `${num}min`;
         }
-        
-        // Se for maior ou igual a 60, calcula horas e minutos
+
         const hours = Math.floor(num / 60);
         const minutes = num % 60;
-        
-        // Sempre mostra os minutos, mesmo que seja 00
+
         return `${hours}h ${minutes.toString().padStart(2, '0')}min`;
     };
 
-    // Função para lidar com blur do campo duração
     const handleDuracaoBlur = (e) => {
         const formattedValue = formatDuracao(e.target.value);
         setFormData({ ...formData, duracao: formattedValue });
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        // Para duração, não formata durante a digitação, apenas armazena o valor
-        setFormData({ ...formData, [name]: value });
-    };
+        const { name, value } = e.target
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }))
+        
+        // Limpar preview quando mudar tipo de imagem
+        if (name === 'tipo_imagem') {
+            setPreviewImagem('')
+            setArquivoImagem(null)
+            setFormData(prev => ({
+                ...prev,
+                imagem_capa: ''
+            }))
+        }
+        
+        // Atualizar preview para URL
+        if (name === 'imagem_capa' && formData.tipo_imagem === 'url') {
+            setPreviewImagem(value)
+        }
+    }
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+            // Validar tipo de arquivo
+            if (!file.type.match(/^image\/(png|jpg|jpeg)$/)) {
+                setError('Apenas arquivos PNG e JPG são permitidos')
+                return
+            }
+            
+            // Validar tamanho (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Arquivo deve ter no máximo 5MB')
+                return
+            }
+            
+            setArquivoImagem(file)
+            setError('')
+            
+            // Criar preview
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                setPreviewImagem(e.target.result)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const uploadImagem = async (file) => {
+        const formData = new FormData()
+        formData.append('imagem', file)
+        
+        const response = await fetch('/api/upload/imagem', {
+            method: 'POST',
+            body: formData
+        })
+        
+        if (!response.ok) {
+            throw new Error('Erro ao fazer upload da imagem')
+        }
+        
+        const data = await response.json()
+        return data.filename
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -140,6 +214,15 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
         setError('')
 
         try {
+            let dadosParaEnviar = { ...formData }
+            
+            // Se for upload de arquivo, fazer upload primeiro
+            if (formData.tipo_imagem === 'arquivo' && arquivoImagem) {
+                const nomeArquivo = await uploadImagem(arquivoImagem)
+                dadosParaEnviar.imagem_capa = `/uploads/${nomeArquivo}`
+                dadosParaEnviar.nome_arquivo_imagem = nomeArquivo
+            }
+            
             const url = isEditing 
                 ? `/api/materiais/editarMaterial/${materialParaEditar.id}`
                 : '/api/materiais/criarMaterial'
@@ -151,7 +234,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(dadosParaEnviar)
             })
 
             if (!response.ok) {
@@ -170,8 +253,11 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                     status: 'Planejado',
                     plataforma: 'YouTube',
                     url_material: '',
-                    imagem_capa: ''
+                    imagem_capa: '',
+                    tipo_imagem: 'url'
                 })
+                setArquivoImagem(null)
+                setPreviewImagem('')
                 setError('') 
                 onSuccess(data.message)
                 onClose()
@@ -189,7 +275,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 bg-gray-500/20 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-gray-500/75 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
@@ -225,7 +311,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                 value={formData.titulo}
                                 onChange={handleInputChange}
                                 required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Digite o título do material"
                             />
                         </div>
@@ -240,7 +326,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                 value={formData.descricao}
                                 onChange={handleInputChange}
                                 rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Descreva o conteúdo do material"
                             />
                         </div>
@@ -258,7 +344,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                     value={formData.responsavel_id}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 >
                                     <option value="">Selecione um responsável</option>
                                     {pessoas.map(pessoa => (
@@ -343,23 +429,83 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                 name="url_material"
                                 value={formData.url_material}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="https://..."
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                URL da Imagem de Capa
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Imagem de Capa
                             </label>
-                            <input
-                                type="url"
-                                name="imagem_capa"
-                                value={formData.imagem_capa}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="https://..."
-                            />
+                            
+                            {/* Seletor de tipo de imagem */}
+                            <div className="flex space-x-4 mb-3">
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        name="tipo_imagem"
+                                        value="url"
+                                        checked={formData.tipo_imagem === 'url'}
+                                        onChange={handleInputChange}
+                                        className="mr-2"
+                                    />
+                                    <span className="text-sm text-gray-700">URL da Imagem</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        name="tipo_imagem"
+                                        value="arquivo"
+                                        checked={formData.tipo_imagem === 'arquivo'}
+                                        onChange={handleInputChange}
+                                        className="mr-2"
+                                    />
+                                    <span className="text-sm text-gray-700">Upload de Arquivo</span>
+                                </label>
+                            </div>
+
+                            {/* Campo URL */}
+                            {formData.tipo_imagem === 'url' && (
+                                <input
+                                    type="url"
+                                    name="imagem_capa"
+                                    value={formData.imagem_capa}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="https://..."
+                                />
+                            )}
+
+                            {/* Campo Upload */}
+                            {formData.tipo_imagem === 'arquivo' && (
+                                <div>
+                                    <input
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg"
+                                        onChange={handleFileChange}
+                                        className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Formatos aceitos: PNG, JPG. Tamanho máximo: 5MB
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Preview da imagem */}
+                            {previewImagem && (
+                                <div className="mt-3">
+                                    <p className="text-sm text-gray-700 mb-2">Preview:</p>
+                                    <Image
+                                        src={previewImagem}
+                                        alt="Preview"
+                                        width={128}
+                                        height={128}
+                                        className="object-cover rounded-md border border-gray-300"
+                                        priority
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex justify-end space-x-3 pt-4">

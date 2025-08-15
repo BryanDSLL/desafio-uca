@@ -44,6 +44,8 @@ CREATE TABLE uca.materiais (
     plataforma VARCHAR(20) CHECK (plataforma IN ('YouTube', 'Vimeo', 'Teams', 'Zoom')) DEFAULT 'YouTube',
     url_material VARCHAR(500), 
     imagem_capa VARCHAR(500),
+    tipo_imagem VARCHAR(10) CHECK (tipo_imagem IN ('url', 'arquivo')) DEFAULT 'url',
+    nome_arquivo_imagem VARCHAR(255),
     ativo BOOLEAN DEFAULT TRUE,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

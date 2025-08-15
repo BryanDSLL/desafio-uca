@@ -8,6 +8,12 @@ const nextConfig = {
                 port: '',
                 pathname: '/npm/heroicons@2.0.18/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'example.com',
+                port: '',
+                pathname: '/**',
+            },
         ],
     },
 };

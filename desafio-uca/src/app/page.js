@@ -84,6 +84,7 @@ if (loading) {
               data={item.data}
               status={item.status}
               plataforma={item.plataforma}
+              src={item.imagem_capa}
             />
           ))}
         </div>

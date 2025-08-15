@@ -17,7 +17,9 @@ export async function GET(request, { params }) {
                 m.status,
                 m.plataforma,
                 m.url_material,
-                m.imagem_capa
+                m.imagem_capa,
+                m.tipo_imagem,
+                m.nome_arquivo_imagem
             FROM uca.materiais m
             JOIN uca.pessoas p ON m.responsavel_id = p.id
             WHERE m.id = $1
@@ -36,6 +38,36 @@ export async function GET(request, { params }) {
         });
     } catch (error) {
         console.error('Erro ao buscar material:', error);
+        return Response.json({
+            success: false,
+            error: error.message
+        }, { status: 500 });
+    }
+}
+
+export async function DELETE(request, { params }) {
+    try {
+        const { id } = params;
+        
+        // Verificar se o material existe
+        const checkResult = await pool.query('SELECT id, titulo FROM uca.materiais WHERE id = $1', [id]);
+        
+        if (checkResult.rows.length === 0) {
+            return Response.json({
+                success: false,
+                error: 'Material não encontrado'
+            }, { status: 404 });
+        }
+
+        // Excluir o material
+        await pool.query('DELETE FROM uca.materiais WHERE id = $1', [id]);
+
+        return Response.json({
+            success: true,
+            message: 'Material excluído com sucesso!'
+        });
+    } catch (error) {
+        console.error('Erro ao excluir material:', error);
         return Response.json({
             success: false,
             error: error.message
