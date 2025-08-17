@@ -1,8 +1,11 @@
+"use client"
 import Link from "next/link"
 import BotaoHeader from "./btnHeader"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 
-export default function sidebar() {
+export default function Header() {
+    const pathname = usePathname()
 
     const botoesHeader = [
         {
@@ -14,7 +17,6 @@ export default function sidebar() {
             desc: "Responsável",
             href: "/cadastros/pessoa",
             src: "https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/user-plus.svg"
-            // Remover: temSeta: true
         },
         {
             desc: "Relatórios",
@@ -51,7 +53,7 @@ export default function sidebar() {
                         src={botao.src} 
                         desc={botao.desc} 
                         href={botao.href}
-                        temSeta={botao.temSeta}
+                        isActive={pathname === botao.href}
                     />
                 ))}
             </div>

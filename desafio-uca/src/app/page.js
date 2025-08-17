@@ -85,6 +85,7 @@ if (loading) {
               status={item.status}
               plataforma={item.plataforma}
               src={item.imagem_capa}
+              link={item.url_material || `https://portal.uca.com/material/${item.id}`}
             />
           ))}
         </div>

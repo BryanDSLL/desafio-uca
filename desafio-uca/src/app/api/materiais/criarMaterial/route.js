@@ -12,7 +12,9 @@ export async function POST(request) {
             status,
             plataforma,
             url_material,
-            imagem_capa
+            imagem_capa,
+            tipo_imagem,
+            nome_arquivo_imagem
         } = body;
 
         // Validações básicas

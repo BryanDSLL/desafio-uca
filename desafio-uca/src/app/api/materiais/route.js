@@ -12,7 +12,8 @@ export async function GET() {
                 m.data_criacao as data,
                 m.status,
                 m.plataforma,
-                m.imagem_capa
+                m.imagem_capa,
+                m.url_material
             FROM uca.materiais m
             JOIN uca.pessoas p ON m.responsavel_id = p.id
             WHERE m.status = 'Ativo'

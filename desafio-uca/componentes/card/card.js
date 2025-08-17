@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Imgteste from "../../public/uca-card.webp"
+import Link from "next/link";
 
 export default function Card (props) {
     
@@ -27,8 +28,16 @@ export default function Card (props) {
         }
     };
 
+    const isExternalLink = props?.link && (props.link.startsWith('http://') || props.link.startsWith('https://')) && !props.link.includes('portal.uca.com')
+    
     return (
-        <div className="w-full max-w-sm shadow-lg rounded-xl hover:shadow-xl hover:scale-[1.04] transition-all duration-300 cursor-pointer bg-white border border-gray-100 overflow-hidden flex flex-col">
+        <Link 
+            href={props?.link || "/"} 
+            target={isExternalLink ? "_blank" : "_self"}
+            rel={isExternalLink ? "noopener noreferrer" : ""}
+            className="w-full max-w-sm shadow-lg rounded-xl hover:shadow-xl hover:scale-[1.04] transition-all duration-300 cursor-pointer bg-white border border-gray-100 overflow-hidden flex flex-col"
+        >
+
             {/* Imagem com overlay de status */}
             <div className="relative bg-gradient-to-br from-purple-50 to-gray-50 rounded-t-xl h-48 w-full overflow-hidden flex-shrink-0">
                 <Image  
@@ -100,6 +109,6 @@ export default function Card (props) {
                     )}
                 </div>
             </div>
-        </div>
+        </Link>
     )
 }

@@ -498,6 +498,12 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                                             onChange={handleFileChange}
                                             className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                                         />
+                                        {/* Mostrar arquivo existente se houver */}
+                                        {isEditing && formData.imagem_capa && formData.imagem_capa.startsWith('/uploads/') && !arquivoImagem && (
+                                            <p className="text-xs text-green-600 mt-1">
+                                                ✓ Arquivo existente: {formData.imagem_capa.split('/').pop()}
+                                            </p>
+                                        )}
                                         <p className="text-xs text-gray-500 mt-1">
                                             Formatos aceitos: PNG, JPG. Tamanho máximo: 5MB
                                         </p>
