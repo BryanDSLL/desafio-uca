@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import CampoPesquisa from "../../../componentes/pesquisa/campoPesquisa"
 import ListaRegistros from "../../../componentes/lista/listaRegistros"
 import ModalNovoMaterial from "../../../componentes/modal/modalNovoMaterial"
 
 export default function Registros() {
+    const searchParams = useSearchParams()
     const [registros, setRegistros] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -53,6 +55,14 @@ export default function Registros() {
     useEffect(() => {
         fetchRegistros()
     }, [])
+
+    // Captura o parâmetro de pesquisa da URL
+    useEffect(() => {
+        const searchTerm = searchParams.get('search')
+        if (searchTerm) {
+            setTermoPesquisa(decodeURIComponent(searchTerm))
+        }
+    }, [searchParams])
 
     const AvisoMobile = () => (
         <div className="min-h-screen bg-gradient-to-br flex items-center justify-center p-4">
@@ -250,6 +260,7 @@ export default function Registros() {
                                 <CampoPesquisa 
                                     placeholder="Pesquisar registros..."
                                     className="w-full sm:w-80"
+                                    value={termoPesquisa}
                                     onSearch={handlePesquisa}
                                 />
                             </div>

@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image"
 
-export default function campoPesquisa({ placeholder = "Pesquisar...", onSearch, className = "" }) {
+export default function campoPesquisa({ placeholder = "Pesquisar...", onSearch, value = "", className = "" }) {
     const handleInputChange = (e) => {
         if (onSearch) {
             onSearch(e.target.value)
@@ -13,6 +13,7 @@ export default function campoPesquisa({ placeholder = "Pesquisar...", onSearch, 
             <input 
                 type="text" 
                 placeholder={placeholder}
+                value={value}
                 onChange={handleInputChange}
                 className="w-full h-10 pl-4 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent relative z-10"
             />
