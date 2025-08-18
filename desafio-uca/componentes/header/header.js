@@ -11,6 +11,9 @@ export default function Header() {
     if (pathname === '/') {
         return null;
     }
+    if (pathname === '/signin') {
+        return null;
+    }
 
     const botoesHeader = [
         {
