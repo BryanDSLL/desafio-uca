@@ -2,12 +2,64 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { checkAuth } from '../../middleware/auth'
+import AvisoAutenticacao from '../../../componentes/aviso/avisoAutenticacao'
 
 export default function Relatorios() {
   const [materiais, setMateriais] = useState([])
   const [loading, setLoading] = useState(true)
   const [relatorioAtivo, setRelatorioAtivo] = useState('dashboard')
+  const [isAuthenticated, setIsAuthenticated] = useState(null)
   const router = useRouter()
+
+  useEffect(() => {
+    const user = checkAuth();
+    if (!user) {
+      setIsAuthenticated(false);
+      return;
+    }
+    
+    setIsAuthenticated(true);
+    
+    const fetchMateriais = async () => {
+      try {
+        const response = await fetch('/api/materiais/todos')
+        const data = await response.json()
+        if (data.success) {
+          setMateriais(data.materiais)
+        }
+      } catch (error) {
+        console.error('Erro ao buscar materiais:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchMateriais()
+  }, []);
+
+  const handleLogin = () => {
+    window.location.href = '/'
+  }
+
+  const handleHome = () => {
+    window.location.href = '/'
+  }
+
+  if (isAuthenticated === false) {
+    return <AvisoAutenticacao onLogin={handleLogin} onHome={handleHome} />
+  }
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando autenticação...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleRedirectToMateriais = (searchTerm) => {
     router.push(`/registros?search=${encodeURIComponent(searchTerm)}`)
@@ -167,23 +219,7 @@ export default function Relatorios() {
     </div>
   )
 
-  useEffect(() => {
-    const fetchMateriais = async () => {
-      try {
-        const response = await fetch('/api/materiais/todos')
-        const data = await response.json()
-        if (data.success) {
-          setMateriais(data.materiais)
-        }
-      } catch (error) {
-        console.error('Erro ao buscar materiais:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    
-    fetchMateriais()
-  }, [])
+
 
   const RelatorioStatus = () => {
     const dados = calcularDadosRelatorio('status')

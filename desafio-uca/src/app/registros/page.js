@@ -2,6 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { checkAuth } from '../../middleware/auth'
+import AvisoAutenticacao from '../../../componentes/aviso/avisoAutenticacao'
 import CampoPesquisa from "../../../componentes/pesquisa/campoPesquisa"
 import ListaRegistros from "../../../componentes/lista/listaRegistros"
 import ModalNovoMaterial from "../../../componentes/modal/modalNovoMaterial"
@@ -54,10 +56,18 @@ function RegistrosContent() {
         }
     }
 
+    const [isAuthenticated, setIsAuthenticated] = useState(null)
+
     useEffect(() => {
+        const user = checkAuth();
+        if (!user) {
+            setIsAuthenticated(false);
+            return;
+        }
+        
+        setIsAuthenticated(true);
         fetchRegistros()
     }, [])
-
 
     useEffect(() => {
         const searchTerm = searchParams.get('search')
@@ -65,6 +75,29 @@ function RegistrosContent() {
             setTermoPesquisa(decodeURIComponent(searchTerm))
         }
     }, [searchParams])
+
+    const handleLogin = () => {
+        window.location.href = '/'
+    }
+
+    const handleHome = () => {
+        window.location.href = '/'
+    }
+
+    if (isAuthenticated === false) {
+        return <AvisoAutenticacao onLogin={handleLogin} onHome={handleHome} />
+    }
+
+    if (isAuthenticated === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Verificando autenticação...</p>
+                </div>
+            </div>
+        )
+    }
 
     const AvisoMobile = () => (
         <div className="min-h-screen bg-gradient-to-br flex items-center justify-center p-4">

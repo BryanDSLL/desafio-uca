@@ -1,20 +1,23 @@
 'use client'
 import Card from "../../../componentes/card/card";
 import { useState, useEffect } from "react";
-import { checkAuth, redirectToLogin } from "../../middleware/auth";
+import { checkAuth } from "../../middleware/auth";
+import AvisoAutenticacao from "../../../componentes/aviso/avisoAutenticacao";
 
 export default function Home() {
   const [ultimasAdicoes, setUltimasAdicoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-
     const user = checkAuth();
     if (!user) {
-      redirectToLogin();
+      setIsAuthenticated(false);
       return;
     }
+
+    setIsAuthenticated(true);
 
     const fetchMateriais = async() => {
       try {
@@ -36,6 +39,32 @@ export default function Home() {
 
     fetchMateriais();
   }, []);
+
+  const handleLogin = () => {
+    window.location.href = '/'
+  }
+
+  const handleHome = () => {
+    window.location.href = '/'
+  }
+
+  if (isAuthenticated === false) {
+    return <AvisoAutenticacao onLogin={handleLogin} onHome={handleHome} />
+  }
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="flex flex-col items-center px-4">
+        <h1 className="w-full text-center text-2xl md:text-3xl mb-5 px-2">
+          Seja bem vindo ao sistema de controle e relatórios de mídias digitais da UCA
+        </h1>
+        <div className="bg-white flex flex-col justify-center items-center rounded-xl shadow-lg w-full max-w-7xl min-h-[50vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          <p className="mt-4 text-gray-600">Verificando autenticação...</p>
+        </div>
+      </div>
+    )
+  }
 
 if (loading) {
     return (

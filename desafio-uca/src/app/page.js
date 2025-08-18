@@ -29,6 +29,10 @@ export default function Login() {
       if (data.success) {
         localStorage.setItem('userToken', data.token);
         localStorage.setItem('userData', JSON.stringify(data.usuario));
+        
+        // Disparar evento customizado para atualizar header
+        window.dispatchEvent(new CustomEvent('userLoggedIn'));
+        
         router.push('/home');
       } else {
         setError(data.error || 'Erro ao fazer login');
