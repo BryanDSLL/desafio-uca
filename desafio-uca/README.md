@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Portal UCA - Sistema de Controle
 
-## Getting Started
+## 🌐 Acesso Online
 
-First, run the development server:
+O projeto está disponível online no Vercel e pode ser acessado diretamente pelo navegador sem necessidade de instalação:
+
+**🔗 [Acessar Portal UCA Online](https://desafio-uca.vercel.app)**
+
+---
+
+## 🚀 Como Executar o Projeto Localmente
+
+### Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado em sua máquina:
+
+- **Node.js** (versão 18 ou superior)
+- **Git** (para clonar o repositório)
+
+### Passo a Passo
+
+#### 1. Clone o Repositório
+
+```bash
+git clone https://github.com/BryanDSLL/desafio-uca.git
+cd desafio-uca
+```
+
+#### 2. Instale as Dependências
+
+```bash
+npm install
+```
+
+#### 3. Configure o Banco de Dados
+
+O projeto utiliza um banco de dados PostgreSQL. Execute o script SQL para criar as tabelas:
+
+# O arquivo SQL está localizado em: SQL/create_tables.sql
+# Execute este arquivo em seu cliente PostgreSQL preferido
+
+
+#### 4. Inicie o Servidor de Desenvolvimento
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### 5. Acesse a Aplicação
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Abra seu navegador e acesse:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+http://localhost:3000
+```
 
-## Learn More
+### 📁 Estrutura do Projeto
 
-To learn more about Next.js, take a look at the following resources:
+```
+desafio-uca/
+├── componentes/          # Componentes React reutilizáveis
+│   ├── card/            # Componentes de cartão
+│   ├── footer/          # Rodapé da aplicação
+│   ├── header/          # Cabeçalho e navegação
+│   ├── lista/           # Componentes de listagem
+│   ├── modal/           # Modais e pop-ups
+│   └── pesquisa/        # Componente de busca
+├── public/              # Arquivos estáticos
+│   ├── icons/           # Ícones da aplicação
+│   └── uploads/         # Uploads de usuários
+├── src/
+│   ├── app/             # Páginas da aplicação (App Router)
+│   ├── backend/         # Lógica do servidor
+│   └── middleware/      # Middleware personalizado
+└── SQL/                 # Scripts do banco de dados
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🔧 Tecnologias Utilizadas
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 15**
+- **React 18**
+- **Tailwind CSS**
+- **PostgreSQL**
+- **Node.js**
 
-## Deploy on Vercel
+### 📋 Funcionalidades
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- ✅ Cadastro e gerenciamento de materiais educacionais
+- ✅ Sistema de registro e controle
+- ✅ Relatórios e dashboards
+- ✅ Cadastro de pessoas/responsáveis
+- ✅ Interface responsiva e moderna
+- ✅ Sistema de busca e filtros
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 🐛 Solução de Problemas
+
+#### Erro de porta em uso
+Se a porta 3000 estiver em uso, o Next.js automaticamente sugerirá uma porta alternativa.
+
+#### Problemas com dependências
+```bash
+# Limpe o cache e reinstale
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### Erro de build
+```bash
+# Execute o build para verificar erros
+npm run build
+```
+
+**Desenvolvido para a Universidade Corporativa Alterdata** 🎓
