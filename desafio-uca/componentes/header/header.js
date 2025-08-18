@@ -36,7 +36,7 @@ export default function Header() {
     <div className="bg-white flex flex-col lg:flex-row justify-between items-center w-full shadow-md px-4 py-2 lg:py-0 lg:h-15">
         <div className="flex flex-row items-center w-full lg:w-auto justify-between lg:justify-start">
             <div className="flex items-center mr-4 lg:mr-8">
-                <Link href="/">
+                <Link href="/home">
                     <Image
                         src="/logo-uca.png" 
                         alt="logoUca" 
