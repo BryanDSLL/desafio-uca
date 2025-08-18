@@ -11,7 +11,7 @@ export default function Header() {
     if (pathname === '/') {
         return null;
     }
-    if (pathname === '/signin') {
+    if (pathname === '/signup') {
         return null;
     }
 
