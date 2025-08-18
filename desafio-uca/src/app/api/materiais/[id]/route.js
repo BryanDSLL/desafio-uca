@@ -14,6 +14,8 @@ export async function GET(request, { params }) {
                 m.duracao,
                 m.data_material,
                 m.data_criacao,
+                m.linha,
+                m.sistema,
                 m.status,
                 m.plataforma,
                 m.url_material,

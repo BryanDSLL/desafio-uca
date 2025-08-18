@@ -11,10 +11,14 @@ export async function PUT(request, { params }) {
             responsavel_id,
             duracao,
             data_material,
+            linha,
+            sistema,
             status,
             plataforma,
             url_material,
-            imagem_capa
+            imagem_capa,
+            tipo_imagem,
+            nome_arquivo_imagem
         } = body;
 
         // Verificar se o material existe
@@ -36,12 +40,16 @@ export async function PUT(request, { params }) {
                 responsavel_id = $3,
                 duracao = $4,
                 data_material = $5,
-                status = $6,
-                plataforma = $7,
-                url_material = $8,
-                imagem_capa = $9,
-                data_atualizacao = CURRENT_TIMESTAMP
-            WHERE id = $10
+                linha = $6,
+                sistema = $7,
+                status = $8,
+                plataforma = $9,
+                url_material = $10,
+                imagem_capa = $11,
+                tipo_imagem = $12,
+                nome_arquivo_imagem = $13,
+                data_atualizacao = CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'
+            WHERE id = $14
             RETURNING id, titulo
         `, [
             titulo,
@@ -49,10 +57,14 @@ export async function PUT(request, { params }) {
             responsavel_id,
             duracao,
             data_material || null,
+            linha || null,
+            sistema || null,
             status,
             plataforma,
             url_material || null,
             imagem_capa || null,
+            tipo_imagem || null,
+            nome_arquivo_imagem || null,
             id
         ]);
 

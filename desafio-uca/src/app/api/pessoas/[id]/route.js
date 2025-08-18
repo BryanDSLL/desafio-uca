@@ -28,7 +28,8 @@ export async function PUT(request, { params }) {
 
         const result = await pool.query(`
             UPDATE uca.pessoas 
-            SET nome = $1, email = $2, cargo = $3, departamento = $4
+            SET nome = $1, email = $2, cargo = $3, departamento = $4,
+                data_atualizacao = CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'
             WHERE id = $5 AND ativo = true
             RETURNING id, nome, email, cargo, departamento
         `, [nome, email, cargo, departamento, id]);
@@ -73,7 +74,8 @@ export async function DELETE(request, { params }) {
 
         const result = await pool.query(`
             UPDATE uca.pessoas 
-            SET ativo = false
+            SET ativo = false,
+                data_atualizacao = CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'
             WHERE id = $1 AND ativo = true
             RETURNING id
         `, [id]);

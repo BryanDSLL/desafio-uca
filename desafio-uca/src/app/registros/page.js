@@ -161,6 +161,8 @@ export default function Registros() {
                     responsavel_id: data.material.responsavel_id,
                     duracao: data.material.duracao,
                     data_material: data.material.data_material ? data.material.data_material.split('T')[0] : '',
+                    linha: data.material.linha || '',
+                    sistema: data.material.sistema || '',
                     status: data.material.status,
                     plataforma: data.material.plataforma,
                     url_material: data.material.url_material || '',

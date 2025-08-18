@@ -9,6 +9,8 @@ export async function POST(request) {
             responsavel_id,
             duracao,
             data_material,
+            linha,
+            sistema,
             status,
             plataforma,
             url_material,
@@ -28,9 +30,9 @@ export async function POST(request) {
         const result = await pool.query(`
             INSERT INTO uca.materiais (
                 titulo, descricao, responsavel_id, duracao, 
-                data_material, status, plataforma, url_material, 
+                data_material, linha, sistema, status, plataforma, url_material, 
                 imagem_capa, tipo_imagem, nome_arquivo_imagem
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING id, titulo
         `, [
             titulo,
@@ -38,11 +40,13 @@ export async function POST(request) {
             responsavel_id,
             duracao || null,
             data_material || new Date().toISOString().split('T')[0],
+            linha || null,
+            sistema || null,
             status || 'Planejado',
             plataforma || 'YouTube',
             url_material || null,
             imagem_capa || null,
-            tipo_imagem || 'url',
+            tipo_imagem || (imagem_capa ? 'url' : null),
             nome_arquivo_imagem || null
         ]);
 

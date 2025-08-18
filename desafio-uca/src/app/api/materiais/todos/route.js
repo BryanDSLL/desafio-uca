@@ -10,6 +10,8 @@ export async function GET() {
                 p.nome as responsavel,
                 m.duracao,
                 m.data_criacao as data,
+                m.linha,
+                m.sistema,
                 m.status,
                 m.plataforma
             FROM uca.materiais m

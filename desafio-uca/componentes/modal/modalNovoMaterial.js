@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
@@ -10,6 +9,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
         responsavel_id: '',
         duracao: '',
         data_material: '',
+        linha: '',
+        sistema: '',
         status: 'Planejado',
         plataforma: 'YouTube',
         url_material: '',
@@ -51,6 +52,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                     responsavel_id: materialParaEditar.responsavel_id || '',
                     duracao: materialParaEditar.duracao || '',
                     data_material: materialParaEditar.data_material || '',
+                    linha: materialParaEditar.linha || '',
+                    sistema: materialParaEditar.sistema || '',
                     status: materialParaEditar.status || 'Planejado',
                     plataforma: materialParaEditar.plataforma || 'YouTube',
                     url_material: materialParaEditar.url_material || '',
@@ -70,6 +73,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                     responsavel_id: '',
                     duracao: '',
                     data_material: '',
+                    linha: '',
+                    sistema: '',
                     status: 'Planejado',
                     plataforma: 'YouTube',
                     url_material: '',
@@ -221,6 +226,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                 const nomeArquivo = await uploadImagem(arquivoImagem)
                 dadosParaEnviar.imagem_capa = `/uploads/${nomeArquivo}`
                 dadosParaEnviar.nome_arquivo_imagem = nomeArquivo
+                dadosParaEnviar.tipo_imagem = 'arquivo'
             }
             
             const url = isEditing 
@@ -250,6 +256,8 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                     responsavel_id: '',
                     duracao: '',
                     data_material: '',
+                    linha: '',
+                    sistema: '',
                     status: 'Planejado',
                     plataforma: 'YouTube',
                     url_material: '',
@@ -368,7 +376,47 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                             />
                         </div>
 
-                        {/* Terceira linha: Duração, Data, Status e Plataforma */}
+                        {/* Terceira linha: Linha e Sistema */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Linha
+                                </label>
+                                <select
+                                    name="linha"
+                                    value={formData.linha}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                    <option value="">Selecione uma linha</option>
+                                    <option value="Shop">Shop</option>
+                                    <option value="Bimer">Bimer</option>
+                                    <option value="Pack">Pack</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Sistema
+                                </label>
+                                <select
+                                    name="sistema"
+                                    value={formData.sistema}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 shadow-md rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                    <option value="">Selecione um sistema</option>
+                                    <option value="Wshop">Wshop</option>
+                                    <option value="IShop">IShop</option>
+                                    <option value="Spice">Spice</option>
+                                    <option value="DP">DP</option>
+                                    <option value="Fiscal">Fiscal</option>
+                                    <option value="Contábil">Contábil</option>
+                                    <option value="CRM">CRM</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Quarta linha: Duração, Data, Status e Plataforma */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -429,7 +477,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                             </div>
                         </div>
 
-                        {/* Quarta linha: URL do Material */}
+                        {/* Quinta linha: URL do Material */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 URL do Material
@@ -444,7 +492,7 @@ export default function ModalNovoMaterial({ isOpen, onClose, onSuccess, material
                             />
                         </div>
 
-                        {/* Quinta linha: Imagem de Capa */}
+                        {/* Sexta linha: Imagem de Capa */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                             <div className="lg:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">

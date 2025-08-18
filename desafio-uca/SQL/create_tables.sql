@@ -11,7 +11,7 @@ CREATE TABLE uca.usuarios (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL, -- Hash da senha
+    senha VARCHAR(255) NOT NULL,
     tipo_usuario VARCHAR(20) CHECK (tipo_usuario IN ('admin', 'editor', 'visualizador')) DEFAULT 'visualizador',
     ativo BOOLEAN DEFAULT TRUE,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -40,6 +40,8 @@ CREATE TABLE uca.materiais (
     responsavel_id INTEGER,
     duracao VARCHAR(20), -- Padrão: "8h 30min"
     data_material DATE,
+    linha VARCHAR(20) CHECK (linha IN ('Shop', 'Bimer', 'Pack')),
+    sistema VARCHAR(20) CHECK (sistema IN ('Wshop', 'IShop', 'Spice', 'DP', 'Fiscal', 'Contábil', 'CRM')),
     status VARCHAR(20) CHECK (status IN ('Ativo', 'Em revisão', 'Planejado')) DEFAULT 'Planejado',
     plataforma VARCHAR(20) CHECK (plataforma IN ('YouTube', 'Vimeo', 'Teams', 'Zoom')) DEFAULT 'YouTube',
     url_material VARCHAR(500), 
@@ -81,15 +83,17 @@ CREATE TABLE uca.avaliacoes (
     UNIQUE (usuario_id, material_id)
 );
 
+SET timezone = 'America/Sao_Paulo';
+
 -- =====================================================
 -- FUNÇÃO PARA AUTO-UPDATE DO TIMESTAMP
 -- =====================================================
 
--- Função para atualizar automaticamente data_atualizacao
+-- Função para atualizar automaticamente data_atualizacao com timezone brasileiro
 CREATE OR REPLACE FUNCTION uca.update_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.data_atualizacao = CURRENT_TIMESTAMP;
+    NEW.data_atualizacao = CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo';
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -140,16 +144,16 @@ INSERT INTO uca.pessoas (nome, email, cargo, departamento) VALUES
 ('Lucia Mendes', 'lucia@uca.com', 'Scrum Master', 'Gestão de Projetos');
 
 -- Inserir alguns materiais de exemplo
-INSERT INTO uca.materiais (titulo, descricao, responsavel_id, duracao, data_material, status, plataforma, url_material, imagem_capa) VALUES 
-('Introdução ao React', 'Curso completo sobre os fundamentos do React, incluindo componentes, hooks e estado.', 1, '4h 30min', '2024-01-15', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=react-intro', 'https://example.com/images/react-intro.jpg'),
-('Design System UCA', 'Apresentação do sistema de design da UCA, incluindo componentes e diretrizes visuais.', 2, '2h 15min', '2024-01-20', 'Ativo', 'Vimeo', 'https://vimeo.com/design-system-uca', 'https://example.com/images/design-system.jpg'),
-('Metodologias Ágeis', 'Workshop sobre Scrum, Kanban e outras metodologias ágeis para gestão de projetos.', 6, '6h 00min', '2024-02-01', 'Em revisão', 'Teams', 'https://teams.microsoft.com/metodologias-ageis', 'https://example.com/images/agile.jpg'),
-('Banco de Dados PostgreSQL', 'Treinamento avançado sobre PostgreSQL, incluindo otimização e administração.', 5, '8h 45min', '2024-02-10', 'Planejado', 'Zoom', 'https://zoom.us/postgresql-training', 'https://example.com/images/postgresql.jpg'),
-('Inovação e Estratégia Digital', 'Palestra sobre tendências de inovação e estratégias digitais para 2024.', 4, '1h 30min', '2024-01-25', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=inovacao-digital', 'https://example.com/images/inovacao.jpg'),
-('Desenvolvimento Full Stack', 'Curso completo sobre desenvolvimento web full stack com Node.js e React.', 3, '12h 00min', '2024-03-01', 'Planejado', 'Vimeo', 'https://vimeo.com/fullstack-course', 'https://example.com/images/fullstack.jpg'),
-('UX/UI Design Avançado', 'Workshop avançado sobre design de interfaces e experiência do usuário.', 2, '5h 20min', '2024-02-15', 'Em revisão', 'Teams', 'https://teams.microsoft.com/ux-ui-advanced', 'https://example.com/images/ux-ui.jpg'),
-('JavaScript ES6+', 'Curso completo sobre as funcionalidades modernas do JavaScript ES6 e versões posteriores.', 1, '3h 45min', '2024-01-30', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=js-es6', 'https://example.com/images/javascript.jpg'),
-('Docker e Containerização', 'Treinamento prático sobre Docker, containers e orquestração com Kubernetes.', 3, '6h 30min', '2024-02-05', 'Ativo', 'Vimeo', 'https://vimeo.com/docker-training', 'https://example.com/images/docker.jpg'),
-('Git e Versionamento', 'Workshop sobre controle de versão com Git, GitHub e boas práticas de desenvolvimento.', 1, '2h 45min', '2024-01-28', 'Ativo', 'Teams', 'https://teams.microsoft.com/git-workshop', 'https://example.com/images/git.jpg'),
-('API REST com Node.js', 'Desenvolvimento de APIs RESTful usando Node.js, Express e MongoDB.', 3, '7h 15min', '2024-02-12', 'Ativo', 'Zoom', 'https://zoom.us/nodejs-api', 'https://example.com/images/nodejs.jpg'),
-('Testes Automatizados', 'Curso sobre testes unitários, integração e E2E com Jest, Cypress e outras ferramentas.', 1, '4h 00min', '2024-02-08', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=automated-tests', 'https://example.com/images/testing.jpg');
+INSERT INTO uca.materiais (titulo, descricao, responsavel_id, duracao, data_material, linha, sistema, status, plataforma, url_material, imagem_capa) VALUES 
+('Introdução ao React', 'Curso completo sobre os fundamentos do React, incluindo componentes, hooks e estado.', 1, '4h 30min', '2024-01-15', 'Shop', 'Wshop', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=react-intro', 'https://example.com/images/react-intro.jpg'),
+('Design System UCA', 'Apresentação do sistema de design da UCA, incluindo componentes e diretrizes visuais.', 2, '2h 15min', '2024-01-20', 'Bimer', 'IShop', 'Ativo', 'Vimeo', 'https://vimeo.com/design-system-uca', 'https://example.com/images/design-system.jpg'),
+('Metodologias Ágeis', 'Workshop sobre Scrum, Kanban e outras metodologias ágeis para gestão de projetos.', 6, '6h 00min', '2024-02-01', 'Pack', 'Spice', 'Em revisão', 'Teams', 'https://teams.microsoft.com/metodologias-ageis', 'https://example.com/images/agile.jpg'),
+('Banco de Dados PostgreSQL', 'Treinamento avançado sobre PostgreSQL, incluindo otimização e administração.', 5, '8h 45min', '2024-02-10', 'Shop', 'DP', 'Planejado', 'Zoom', 'https://zoom.us/postgresql-training', 'https://example.com/images/postgresql.jpg'),
+('Inovação e Estratégia Digital', 'Palestra sobre tendências de inovação e estratégias digitais para 2024.', 4, '1h 30min', '2024-01-25', 'Bimer', 'Fiscal', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=inovacao-digital', 'https://example.com/images/inovacao.jpg'),
+('Desenvolvimento Full Stack', 'Curso completo sobre desenvolvimento web full stack com Node.js e React.', 3, '12h 00min', '2024-03-01', 'Pack', 'Contábil', 'Planejado', 'Vimeo', 'https://vimeo.com/fullstack-course', 'https://example.com/images/fullstack.jpg'),
+('UX/UI Design Avançado', 'Workshop avançado sobre design de interfaces e experiência do usuário.', 2, '5h 20min', '2024-02-15', 'Shop', 'CRM', 'Em revisão', 'Teams', 'https://teams.microsoft.com/ux-ui-advanced', 'https://example.com/images/ux-ui.jpg'),
+('JavaScript ES6+', 'Curso completo sobre as funcionalidades modernas do JavaScript ES6 e versões posteriores.', 1, '3h 45min', '2024-01-30', 'Bimer', 'Wshop', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=js-es6', 'https://example.com/images/javascript.jpg'),
+('Docker e Containerização', 'Treinamento prático sobre Docker, containers e orquestração com Kubernetes.', 3, '6h 30min', '2024-02-05', 'Pack', 'IShop', 'Ativo', 'Vimeo', 'https://vimeo.com/docker-training', 'https://example.com/images/docker.jpg'),
+('Git e Versionamento', 'Workshop sobre controle de versão com Git, GitHub e boas práticas de desenvolvimento.', 1, '2h 45min', '2024-01-28', 'Shop', 'Spice', 'Ativo', 'Teams', 'https://teams.microsoft.com/git-workshop', 'https://example.com/images/git.jpg'),
+('API REST com Node.js', 'Desenvolvimento de APIs RESTful usando Node.js, Express e MongoDB.', 3, '7h 15min', '2024-02-12', 'Bimer', 'DP', 'Ativo', 'Zoom', 'https://zoom.us/nodejs-api', 'https://example.com/images/nodejs.jpg'),
+('Testes Automatizados', 'Curso sobre testes unitários, integração e E2E com Jest, Cypress e outras ferramentas.', 1, '4h 00min', '2024-02-08', 'Pack', 'Fiscal', 'Ativo', 'YouTube', 'https://youtube.com/watch?v=automated-tests', 'https://example.com/images/testing.jpg');

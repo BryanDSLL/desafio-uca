@@ -10,13 +10,14 @@ export async function GET() {
                 p.nome as responsavel,
                 m.duracao,
                 m.data_criacao as data,
+                m.linha,
+                m.sistema,
                 m.status,
                 m.plataforma,
                 m.imagem_capa,
                 m.url_material
             FROM uca.materiais m
             JOIN uca.pessoas p ON m.responsavel_id = p.id
-            WHERE m.status = 'Ativo'
             ORDER BY m.data_criacao DESC
         `);
 
