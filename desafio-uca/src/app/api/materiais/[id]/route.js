@@ -51,7 +51,7 @@ export async function DELETE(request, { params }) {
     try {
         const { id } = params;
         
-        // Verificar se o material existe
+
         const checkResult = await pool.query('SELECT id, titulo FROM uca.materiais WHERE id = $1', [id]);
         
         if (checkResult.rows.length === 0) {
@@ -61,7 +61,7 @@ export async function DELETE(request, { params }) {
             }, { status: 404 });
         }
 
-        // Excluir o material
+
         await pool.query('DELETE FROM uca.materiais WHERE id = $1', [id]);
 
         return Response.json({

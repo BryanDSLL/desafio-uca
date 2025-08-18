@@ -7,6 +7,11 @@ import { usePathname } from "next/navigation"
 export default function Header() {
     const pathname = usePathname()
 
+    // Não renderizar header na página de login
+    if (pathname === '/') {
+        return null;
+    }
+
     const botoesHeader = [
         {
             desc: "Material",

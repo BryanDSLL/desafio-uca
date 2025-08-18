@@ -5,7 +5,7 @@ export async function PUT(request, { params }) {
         const { id } = params;
         const { nome, email, cargo, departamento } = await request.json();
 
-        // Validações básicas
+
         if (!nome || !email || !cargo || !departamento) {
             return Response.json({
                 success: false,
@@ -13,7 +13,7 @@ export async function PUT(request, { params }) {
             }, { status: 400 });
         }
 
-        // Verificar se email já existe para outro usuário
+
         const emailExists = await pool.query(
             'SELECT id FROM uca.pessoas WHERE email = $1 AND id != $2 AND ativo = true',
             [email, id]
@@ -59,7 +59,7 @@ export async function DELETE(request, { params }) {
     try {
         const { id } = params;
 
-        // Verificar se a pessoa está sendo usada em algum material
+
         const materiaisVinculados = await pool.query(
             'SELECT COUNT(*) as count FROM uca.materiais WHERE responsavel_id = $1',
             [id]

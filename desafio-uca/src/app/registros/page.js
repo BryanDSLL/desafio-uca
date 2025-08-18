@@ -18,6 +18,8 @@ export default function Registros() {
     const [materialParaEditar, setMaterialParaEditar] = useState(null)
     const [termoPesquisa, setTermoPesquisa] = useState('')
     const [modalConfirmacao, setModalConfirmacao] = useState({ aberto: false, material: null })
+    const [dataInicio, setDataInicio] = useState('')
+    const [dataFim, setDataFim] = useState('')
 
     const fetchRegistros = async () => {
         try {
@@ -33,7 +35,7 @@ export default function Registros() {
                     responsavel: material.responsavel,
                     linhaSistema: "Sistema Educacional", 
                     sistema: "Portal UCA", 
-                    link: `https://portal.uca.com/material/${material.id}`, 
+                    link: `https://portal.uca.com/material/${material.id}`,
                     plataforma: material.plataforma,
                     duracao: material.duracao,
                     data: new Date(material.data).toLocaleDateString('pt-BR'),
@@ -56,7 +58,7 @@ export default function Registros() {
         fetchRegistros()
     }, [])
 
-    // Captura o parâmetro de pesquisa da URL
+
     useEffect(() => {
         const searchTerm = searchParams.get('search')
         if (searchTerm) {
@@ -108,12 +110,29 @@ export default function Registros() {
 
     const registrosFiltrados = registros.filter(registro => {
         const termo = termoPesquisa.toLowerCase()
-        return (
+        const matchesTermo = (
             registro.titulo.toLowerCase().includes(termo) ||
             registro.responsavel.toLowerCase().includes(termo) ||
             registro.plataforma.toLowerCase().includes(termo) ||
             registro.status.toLowerCase().includes(termo)
         )
+
+        let matchesData = true
+        if (dataInicio || dataFim) {
+            const dataRegistro = new Date(registro.data.split('/').reverse().join('-'))
+            
+            if (dataInicio) {
+                const inicio = new Date(dataInicio)
+                matchesData = matchesData && dataRegistro >= inicio
+            }
+            
+            if (dataFim) {
+                const fim = new Date(dataFim)
+                matchesData = matchesData && dataRegistro <= fim
+            }
+        }
+
+        return matchesTermo && matchesData
     })
 
     const indexOfLastRegistro = currentPage * registrosPorPagina
@@ -220,6 +239,99 @@ export default function Registros() {
         setModalConfirmacao({ aberto: false, material: null })
     }
 
+    const exportarCSV = () => {
+        const headers = ['Título', 'Responsável', 'Plataforma', 'Duração', 'Data', 'Status']
+        const csvContent = [
+            headers.join(','),
+            ...registrosFiltrados.map(registro => [
+                `"${registro.titulo}"`,
+                `"${registro.responsavel}"`,
+                `"${registro.plataforma}"`,
+                `"${registro.duracao}"`,
+                `"${registro.data}"`,
+                `"${registro.status}"`
+            ].join(','))
+        ].join('\n')
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        const url = URL.createObjectURL(blob)
+        link.setAttribute('href', url)
+        link.setAttribute('download', `materiais_${new Date().toISOString().split('T')[0]}.csv`)
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
+
+    const exportarPDF = () => {
+        const printWindow = window.open('', '_blank')
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Relatório de Materiais</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    h1 { color: #7c3aed; text-align: center; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; font-weight: bold; }
+                    tr:nth-child(even) { background-color: #f9f9f9; }
+                    .info { margin-bottom: 20px; }
+                </style>
+            </head>
+            <body>
+                <h1>Relatório de Materiais</h1>
+                <div class="info">
+                    <p><strong>Data de geração:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                    <p><strong>Total de registros:</strong> ${registrosFiltrados.length}</p>
+                    ${dataInicio ? `<p><strong>Data início:</strong> ${new Date(dataInicio).toLocaleDateString('pt-BR')}</p>` : ''}
+                    ${dataFim ? `<p><strong>Data fim:</strong> ${new Date(dataFim).toLocaleDateString('pt-BR')}</p>` : ''}
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Responsável</th>
+                            <th>Plataforma</th>
+                            <th>Duração</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${registrosFiltrados.map(registro => `
+                            <tr>
+                                <td>${registro.titulo}</td>
+                                <td>${registro.responsavel}</td>
+                                <td>${registro.plataforma}</td>
+                                <td>${registro.duracao}</td>
+                                <td>${registro.data}</td>
+                                <td>${registro.status}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `
+        
+        printWindow.document.write(htmlContent)
+        printWindow.document.close()
+        printWindow.focus()
+        setTimeout(() => {
+            printWindow.print()
+        }, 250)
+    }
+
+    const limparFiltros = () => {
+        setDataInicio('')
+        setDataFim('')
+        setTermoPesquisa('')
+        setCurrentPage(1)
+    }
+
     return (
         <>
             <div className="block lg:hidden">
@@ -258,13 +370,64 @@ export default function Registros() {
                                 </button>
                             </div>
                             
-                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-end">
-                                <CampoPesquisa 
-                                    placeholder="Pesquisar registros..."
-                                    className="w-full sm:w-80"
-                                    value={termoPesquisa}
-                                    onSearch={handlePesquisa}
-                                />
+                            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end justify-between">
+                                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                                    <div className="flex flex-col">
+                                        <label className="text-sm font-medium text-gray-700 mb-1">Data Início</label>
+                                        <input
+                                            type="date"
+                                            value={dataInicio}
+                                            onChange={(e) => setDataInicio(e.target.value)}
+                                            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className="text-sm font-medium text-gray-700 mb-1">Data Fim</label>
+                                        <input
+                                            type="date"
+                                            value={dataFim}
+                                            onChange={(e) => setDataFim(e.target.value)}
+                                            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={limparFiltros}
+                                        className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 text-sm"
+                                    >
+                                        Limpar Filtros
+                                    </button>
+                                </div>
+                                
+                                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                                    <CampoPesquisa 
+                                        placeholder="Pesquisar registros..."
+                                        className="w-full sm:w-80"
+                                        value={termoPesquisa}
+                                        onSearch={handlePesquisa}
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={exportarCSV}
+                                            disabled={registrosFiltrados.length === 0}
+                                            className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors duration-200 text-sm flex items-center gap-2"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            CSV
+                                        </button>
+                                        <button
+                                            onClick={exportarPDF}
+                                            disabled={registrosFiltrados.length === 0}
+                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors duration-200 text-sm flex items-center gap-2"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            PDF
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

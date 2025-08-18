@@ -21,7 +21,7 @@ export async function PUT(request, { params }) {
             nome_arquivo_imagem
         } = body;
 
-        // Verificar se o material existe
+
         const checkResult = await pool.query('SELECT id FROM uca.materiais WHERE id = $1', [id]);
         
         if (checkResult.rows.length === 0) {
@@ -31,7 +31,7 @@ export async function PUT(request, { params }) {
             }, { status: 404 });
         }
 
-        // Atualizar o material
+
         const result = await pool.query(`
             UPDATE uca.materiais 
             SET 

@@ -101,7 +101,7 @@ export default function Relatorios() {
     )
   }
 
-  // Função para calcular dados dos relatórios
+  
   const calcularDadosRelatorio = (tipo) => {
     if (!materiais.length) return []
     

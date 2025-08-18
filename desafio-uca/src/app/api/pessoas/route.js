@@ -31,7 +31,7 @@ export async function POST(request) {
     try {
         const { nome, email, cargo, departamento } = await request.json();
 
-        // Validações básicas
+
         if (!nome || !email || !cargo || !departamento) {
             return Response.json({
                 success: false,
@@ -39,7 +39,7 @@ export async function POST(request) {
             }, { status: 400 });
         }
 
-        // Verificar se email já existe
+
         const emailExists = await pool.query(
             'SELECT id FROM uca.pessoas WHERE email = $1 AND ativo = true',
             [email]

@@ -19,7 +19,7 @@ export async function POST(request) {
             nome_arquivo_imagem
         } = body;
 
-        // Validações básicas
+
         if (!titulo || !responsavel_id) {
             return Response.json({
                 success: false,
