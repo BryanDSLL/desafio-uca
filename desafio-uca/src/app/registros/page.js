@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import CampoPesquisa from "../../../componentes/pesquisa/campoPesquisa"
 import ListaRegistros from "../../../componentes/lista/listaRegistros"
 import ModalNovoMaterial from "../../../componentes/modal/modalNovoMaterial"
 
-export default function Registros() {
+function RegistrosContent() {
     const searchParams = useSearchParams()
     const [registros, setRegistros] = useState([])
     const [loading, setLoading] = useState(true)
@@ -554,4 +554,12 @@ export default function Registros() {
             )}
         </>
     );
+}
+
+export default function Registros() {
+    return (
+        <Suspense fallback={<div>Carregando...</div>}>
+            <RegistrosContent />
+        </Suspense>
+    )
 }
