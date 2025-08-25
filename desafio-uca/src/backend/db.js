@@ -1,12 +1,15 @@
 import { Pool } from "pg";
 
-const pool = new Pool ({
-    host: 'ep-old-tooth-acpzvemw-pooler.sa-east-1.aws.neon.tech',
-    port: 5432,
-    database: 'neondb',
-    user: 'neondb_owner',
-    password: 'npg_KhxAr5T6FUGI',
-    ssl: { rejectUnauthorized: false }
+const pool = new Pool({
+    host: process.env.PGHOST,
+    port: process.env.PGPORT,
+    database: process.env.PGDATABASE,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    ssl: { 
+        require: true,
+        rejectUnauthorized: false 
+    }
 });
 
 export default pool;
